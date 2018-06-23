@@ -52,13 +52,14 @@
 									<h2>CodeblockMOD介绍</h2>
 									<ol>
 										<li>
-											<h3>代码方块<img src="images/code_block_0.png" alt="代码方块" /></h3>
+											<h3>代码方块<img src="images/code_block_0.png" alt="代码方块" />
+											</h3>
 											<p>这个方块可执行编写的代码，只能用'代码方块钥匙'才能打开。
-											您可以通过此方块调用<a href="#">CodeAPI</a>，也可以直接调用游戏代码。
-											当然，最明显的一点就是，可以持<a href="#">久化数据(保存数据)</a>，和更多的高效计算方法。
+											您可以通过此方块调用<a href="javascript:jump('codeApi');">CodeAPI</a>，也可以直接调用游戏代码。
+											当然，最明显的一点就是，可以持<a href="javascript:jump('built-inVariable');">久化数据(保存数据)</a>，和更多的高效计算方法。
 											</p>
 											<p>运行的代码是JS脚本语言，您需要掌握JS的语法；使用为Java8的'nashorn'脚本引擎执行代码；
-												<br />请参考<a href="#">CodeBlock代码特殊语法结构</a>。</p>
+												<br />请参考<a href="javascript:jump('specialGrammar');">CodeBlock代码特殊语法结构</a>。</p>
 											
 										</li>
 										<li>
@@ -70,19 +71,73 @@
 									
 									<h4>更多的视频介绍</h4>
 									<p>我为CodeBlockMOD做了一个教学视频，您可以点击这个链接，去B站观看我上传的教程。</p>
+									<div id="principle_link"></div>
 									<hr />
 									
-									<h2>代码特殊语法 (完善中...)</h2>
+									<h2 id="principle">CodeblockMOD原理</h2>
+									<p>'代码方块MOD'代码运行的核心是Java8的<a target="_blank" href="https://baike.baidu.com/item/Nashorn">Nashorn</a>脚本引擎，这个引擎的特点可以通过'Java.type(ClassName);'方法获取当前运行Java的类，'代码方块MOD'利用这个引擎去执行玩家编写的代码。</p>
+									<p>'代码方块MOD'在脚本引擎原有的基础上，创建了<a href="javascript:jump('importGuidePackage');">import语法</a>，他是'Java.type(ClassName);'变异体，在执行前会被翻译成'Java.type()'的代码。</p>
+									<p>'代码方块'代码的代码和'CodeVar'变量，都被保存在'代码方块'的NBT标签里，会得到游戏保存。</p>
+									<p>内置的代码编辑器，使用易语言编译的程序，代码编辑框核心是火花代码编辑框；双方通过Socket进行通信，代码通过文件读写来进行交互。</p>
+									
+									<h2 id="specialGrammar">代码特殊语法</h2>
 									<ol>
-										<li>import导包功能</li>
-										<li>内置变量: 1.全局变量 2.自动保存变量</li>
-										<li>main方法function</li>
+										<li id="importGuidePackage">
+											<h3>import导包功能</h3>
+											<p>'import'关键词在JS语法结构中，它只是保留关键词，在这里我们将这段代码进行了转义，让它拥有了类似导包的功能。<br />
+											您可以用import导入一些Java类使用</p>
+											<p>新语法结构： <code>import 类路径;</code> 例子: <code>import java.lang.System;</code></p>
+											<p>原理: 在代码执行前，您的代码会交给CodeMOD的代码转义器，如将<code>import java.lang.System;</code> 转义为<code>var System = Java.type("java.lang.System");</code> （'Java.type()'方法是nashorn脚本引擎加载Java对象的方法）</p>
+											<p style="color: #EF5E4A;">PS: import导包后将会覆盖变量，如果包类名和现有变量重名，请定义别名。<br />
+											如: 导入'red.stu.mc.api.Code'包，则'Code'变量会被覆盖；如想保留原有变量，以'Code'为例，可以参考以下方式：
+											<pre><code>
+/* 方式一 */
+var CodeApi = Code;
+import red.stu.mc.api.Code;
+// CodeApi > 内置Java对象变量，只能调用对象(非静态)方法
+// Code > 通过导包加载的，只能调用类(静态)方法。
+
+/* 方式二 */
+// Code; 内置初始化对象
+var codeStatic = Java.type("red.stu.mc.api.Code");
+// Code > 内置Java对象变量，只能调用对象(非静态)方法
+// codeStatic > 通过'Java.type()'加载的，只能调用类(静态)方法。
+
+											</code></pre>
+											</p>
+										</li>
+										<li id="built-inVariable">
+											<h3>内置变量:</h3>
+											<h3>全局变量 <span style="color: #EF5E4A;">(请注意全局变量的线程安全)</span></h3>
+											<p><strong>'Code'内置变量: </strong>Code对象变量封装了一些<a href="javascript:jump('codeApi');">代码方块的API，您可以点击这条链接去查看所有API</a>。此变量您能直接在代码方块内调用.</p>
+											<p><strong>'System'内置变量: </strong>Java的System对象，您可以调出系统输出(<code>System.out.println("hi");</code>)</p>
+											<p><strong>'CodeVar'内置变量: </strong>每个代码方块独有的变量，这个变量在代码执行前会去找代码方块储存的变量(默认:"{}"空json)，在代码执行后，又会将值保存到代码方块里。 您可以用这个变量来完成数据持久化操作。</p>
+											<p>
+												<strong>自定义全局变量: </strong><br />
+												在代码中，如果您的'import'和变量的定义如果没有在方法function里面，那这个将会是自定义全局变量。这个变量将会被同一组(分类方法>代码方块钥匙的名字)代码方块共享。
+											</p>
+	
+										</li>
+										<li>
+											<h3 id="mainMethod">main方法function</h3>
+											<p>您应该尽量避免定义全局变量，您可以将代码写在方法里面；这样一定程度上不会干扰别的代码方块的变量。<br />
+											可以参考下面示例代码，这是推荐的标准结构：</p>
+											<pre><code>
+main();
+function main() {
+	import net.minecraft.block.Block;
+	
+	Code.sendMsg("ID为0的方块是：" + Block.getBlockById(0));
+	
+}
+											</code></pre>
+										</li>
 									</ol>
 									<hr />
 									
-									<h2>代码接口CodeAPI</h2>
+									<h2 id="codeApi">代码接口CodeAPI</h2>
 									<p>此列举方块，可通过'Code'变量对象调用，已内置初始化，无需导包。<br />
-									<span style="color: #EF5E4A;">特别注意: 所有 static 静态Code方法 不能被'Code'变量直接调用，您需要手动导入'import red.stu.mc.api.Code;'包，才能使用这些静态方法；但是如果您导入'import red.stu.mc.api.Code;'包后，原有'Code'变量更能就会消失！<br />原因参阅:<a href="#">代码特殊语法-import原理</a></span>
+									<span style="color: #EF5E4A;">特别注意: 所有 static 静态Code方法 不能被'Code'变量直接调用，您需要手动导入'import red.stu.mc.api.Code;'包，才能使用这些静态方法；但是如果您导入'import red.stu.mc.api.Code;'包后，原有'Code'变量更能就会消失！<br />原因参阅:<a href="javascript:jump('importGuidePackage');">代码特殊语法-import原理</a></span>
 									</p>
 									
 									<pre><code>
@@ -209,8 +264,7 @@
 
 </code></pre>
 									<hr />
-									
-									
+									<h4>还有疑问? 欢迎加群讨论-QQ群807477954</h4>
 
 							</div>
 						</section>
@@ -242,6 +296,12 @@
 			<script src="assets/js/util.js"></script>
 			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 			<script src="assets/js/main.js"></script>
-
+		<script type="text/javascript">
+			var navHeight = $('#header').height();
+			function jump(id) {
+				$('html,body').animate({scrollTop: $('#' + id).offset().top - navHeight}, 500);
+			}
+			
+		</script>
 	</body>
 </html>
