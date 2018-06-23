@@ -50,7 +50,7 @@
 								<h3>立即激活我的代码编辑器</h3>
 								<p><strong>第一步: 下载激活软件</strong> <br />
 								<img src="images/i1.png"/><br />
-								<span><a href="#">直接下载</a> / <a href="#">百度云下载</a> (如果误报毒请选择信任)</span></p>
+								<span><a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5WgoW3M">QQ群内下载</a> / <a href="file/codeblock_ide_1.0.zip">直接下载</a> / <a target="_blank" href="https://pan.baidu.com/s/1uuXYy8DtH_NphOO125HIxA">百度云下载</a>密码:z3w3 (如果误报毒请选择信任)</span></p>
 
 								<p><strong>第二步: 获取激活码并激活</strong><br />
 								<img src="images/i2.png"/><br />
@@ -93,6 +93,17 @@
 			<script src="assets/js/util.js"></script>
 			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 			<script src="assets/js/main.js"></script>
-
+			<script type="text/javascript">
+				init();
+				function init() {
+					var $body = $('body');
+					var b = $body.height() / $body.width();
+					console.log("屏幕比例:" + b);
+					if (b > 2.3) {
+						$('img').css("width", "100%");
+					}
+				}
+				
+			</script>
 	</body>
 </html>
